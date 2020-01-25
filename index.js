@@ -1,11 +1,7 @@
 #!/usr/bin/env node
 
 const chalk = require("chalk"),
-  mkdirp = require("mkdirp"),
-  boxen = require("boxen"),
   fs = require("fs"),
-  tty = require("tty"),
-  homedir = require("os").homedir(),
   path = require("path");
 
 // const got = require("got");
