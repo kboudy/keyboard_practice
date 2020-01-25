@@ -62,25 +62,30 @@ const getHelperText = k => {
   }
 };
 let currentKeyIndex = 0;
-let performance = {};
+let performance = null;
 if (fs.existsSync("performance.json")) {
   performance = JSON.parse(fs.readFileSync("performance.json"));
 }
 const thisSessionPerformance = {};
 let prevSessionKey = null;
-for (const k in performance) {
-  if (!prevSessionKey || k > prevSessionKey) {
-    prevSessionKey = k;
+if (performance) {
+  for (const k in performance) {
+    if (!prevSessionKey || k > prevSessionKey) {
+      prevSessionKey = k;
+    }
   }
 }
 const prevSession = prevSessionKey ? performance[prevSessionKey] : null;
 let keysToUse = allKeys.split(""); // we'll add any wrong keys & the 10% slowest so they appear twice
 const prevCorrectKeys = [];
-for (const k in prevSession) {
-  if (!prevSession[k].correct) {
-    keysToUse.push(k);
-  } else {
-    prevCorrectKeys.push({ millis: prevSession[k].millis, key: k });
+if (prevSession) {
+  console.log(keysToUse);
+  for (const k in prevSession) {
+    if (!prevSession[k].correct) {
+      keysToUse.push(k);
+    } else {
+      prevCorrectKeys.push({ millis: prevSession[k].millis, key: k });
+    }
   }
 }
 prevCorrectKeys.sort(compare);
@@ -90,6 +95,9 @@ const slowPokes = prevCorrectKeys.splice(-saveAmount);
 keysToUse = [...keysToUse, ...slowPokes.map(k => k.key)];
 
 const shuffledKeys = shuffle(keysToUse);
+if (!performance) {
+  performance = {};
+}
 performance[Date.now()] = thisSessionPerformance;
 console.log(
   chalk.yellow(shuffledKeys[currentKeyIndex]) +
