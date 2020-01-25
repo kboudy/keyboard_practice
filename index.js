@@ -12,7 +12,6 @@ readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
 const allKeys =
   "abcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-=_+~`[]\\{}|<>?,./'\":;";
-
 function compare(a, b) {
   if (a.millis < b.millis) {
     return -1;
@@ -42,7 +41,26 @@ function shuffle(array) {
 
   return array;
 }
-
+const getHelperText = k => {
+  switch (k.trim()) {
+    case "l":
+      return " letter l";
+    case "1":
+      return " number 1";
+    case "-":
+      return " dash";
+    case "_":
+      return " underscore";
+    case "`":
+      return " backtick";
+    case ",":
+      return " comma";
+    case ".":
+      return " period";
+    default:
+      return "";
+  }
+};
 let currentKeyIndex = 0;
 let performance = {};
 if (fs.existsSync("performance.json")) {
@@ -73,7 +91,10 @@ keysToUse = [...keysToUse, ...slowPokes.map(k => k.key)];
 
 const shuffledKeys = shuffle(keysToUse);
 performance[Date.now()] = thisSessionPerformance;
-console.log(chalk.yellow(shuffledKeys[currentKeyIndex]));
+console.log(
+  chalk.yellow(shuffledKeys[currentKeyIndex]) +
+    chalk.gray(` ${getHelperText(shuffledKeys[currentKeyIndex])}`)
+);
 let keyStart = Date.now();
 let testStart = Date.now();
 let wrongCount = 0;
@@ -111,5 +132,8 @@ process.stdin.on("keypress", (str, key) => {
     console.log();
     process.exit(); // eslint-disable-line no-process-exit
   }
-  console.log(chalk.yellow(shuffledKeys[currentKeyIndex]));
+  console.log(
+    chalk.yellow(shuffledKeys[currentKeyIndex]) +
+      chalk.gray(` ${getHelperText(shuffledKeys[currentKeyIndex])}`)
+  );
 });
