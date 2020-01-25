@@ -79,7 +79,6 @@ const prevSession = prevSessionKey ? performance[prevSessionKey] : null;
 let keysToUse = allKeys.split(""); // we'll add any wrong keys & the 10% slowest so they appear twice
 const prevCorrectKeys = [];
 if (prevSession) {
-  console.log(keysToUse);
   for (const k in prevSession) {
     if (!prevSession[k].correct) {
       keysToUse.push(k);
