@@ -2,14 +2,14 @@
 
 const chalk = require("chalk"),
   fs = require("fs"),
-  path = require("path");
-
-// const got = require("got");
-const eol = require("os").EOL;
-const readline = require("readline");
+  path = require("path"),
+  readline = require("readline"),
+  appDir = path.dirname(require.main.filename);
 
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
+
+const performanceJsonPath = path.join(appDir, "performance.json");
 const allKeys =
   "abcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-=_+~`[]\\{}|<>?,./'\":;";
 function compare(a, b) {
@@ -63,8 +63,8 @@ const getHelperText = k => {
 };
 let currentKeyIndex = 0;
 let performance = null;
-if (fs.existsSync("performance.json")) {
-  performance = JSON.parse(fs.readFileSync("performance.json"));
+if (fs.existsSync(performanceJsonPath)) {
+  performance = JSON.parse(fs.readFileSync(performanceJsonPath));
 }
 const thisSessionPerformance = {};
 let prevSessionKey = null;
@@ -131,7 +131,7 @@ process.stdin.on("keypress", (str, key) => {
   console.log();
   currentKeyIndex++;
   if (currentKeyIndex === shuffledKeys.length) {
-    fs.writeFileSync("performance.json", JSON.stringify(performance), "utf8");
+    fs.writeFileSync(performanceJsonPath, JSON.stringify(performance), "utf8");
     console.log(chalk.magenta(`--------------------`));
     console.log(chalk.red(`${wrongCount} incorrect`));
     const testTimeMs = Date.now() - testStart;
