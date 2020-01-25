@@ -38,6 +38,8 @@ let performance = {};
 if (fs.existsSync("performance.json")) {
   performance = JSON.parse(fs.readFileSync("performance.json"));
 }
+const thisSessionPerformance = {};
+performance[Date.now()] = thisSessionPerformance;
 console.log(chalk.yellow(shuffledKeys[currentKeyIndex]));
 let keyStart = Date.now();
 let testStart = Date.now();
@@ -56,7 +58,7 @@ process.stdin.on("keypress", (str, key) => {
   }
   const millis = Date.now() - keyStart;
   keyStart = Date.now();
-  performance[key.sequence] = { millis, correct };
+  thisSessionPerformance[key.sequence] = { millis, correct };
   console.log();
   currentKeyIndex++;
   if (currentKeyIndex === shuffledKeys.length) {
