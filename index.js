@@ -7,10 +7,21 @@ const chalk = require("chalk"),
 // const got = require("got");
 const eol = require("os").EOL;
 const readline = require("readline");
+
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
 const allKeys =
   "abcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-=_+~`[]\\{}|<>?,./'\":;";
+
+function compare(a, b) {
+  if (a.millis < b.millis) {
+    return -1;
+  }
+  if (a.millis > b.millis) {
+    return 1;
+  }
+  return 0;
+}
 
 function shuffle(array) {
   var currentIndex = array.length,
@@ -32,13 +43,35 @@ function shuffle(array) {
   return array;
 }
 
-const shuffledKeys = shuffle(allKeys.split(""));
 let currentKeyIndex = 0;
 let performance = {};
 if (fs.existsSync("performance.json")) {
   performance = JSON.parse(fs.readFileSync("performance.json"));
 }
 const thisSessionPerformance = {};
+let prevSessionKey = null;
+for (const k in performance) {
+  if (!prevSessionKey || k > prevSessionKey) {
+    prevSessionKey = k;
+  }
+}
+const prevSession = prevSessionKey ? performance[prevSessionKey] : null;
+let keysToUse = allKeys.split(""); // we'll add any wrong keys & the 10% slowest so they appear twice
+const prevCorrectKeys = [];
+for (const k in prevSession) {
+  if (!prevSession[k].correct) {
+    keysToUse.push(k);
+  } else {
+    prevCorrectKeys.push({ millis: prevSession[k].millis, key: k });
+  }
+}
+prevCorrectKeys.sort(compare);
+// the slowest 10% are at the end
+const saveAmount = Math.floor(prevCorrectKeys.length * 0.1);
+const slowPokes = prevCorrectKeys.splice(-saveAmount);
+keysToUse = [...keysToUse, ...slowPokes.map(k => k.key)];
+
+const shuffledKeys = shuffle(keysToUse);
 performance[Date.now()] = thisSessionPerformance;
 console.log(chalk.yellow(shuffledKeys[currentKeyIndex]));
 let keyStart = Date.now();
@@ -56,8 +89,15 @@ process.stdin.on("keypress", (str, key) => {
     wrongCount++;
     console.log(chalk.red(key.sequence.trim()));
   }
-  const millis = Date.now() - keyStart;
+  let millis = Date.now() - keyStart;
   keyStart = Date.now();
+  if (thisSessionPerformance[key.sequence]) {
+    // this is the second time we've seen this key;
+    millis = Math.ceil(
+      (millis + thisSessionPerformance[key.sequence].millis) / 2
+    );
+    correct = correct && thisSessionPerformance[key.sequence].correct;
+  }
   thisSessionPerformance[key.sequence] = { millis, correct };
   console.log();
   currentKeyIndex++;
@@ -65,7 +105,8 @@ process.stdin.on("keypress", (str, key) => {
     fs.writeFileSync("performance.json", JSON.stringify(performance), "utf8");
     console.log(chalk.magenta(`--------------------`));
     console.log(chalk.red(`${wrongCount} incorrect`));
-    console.log(chalk.white(`${Date.now() - testStart} ms`));
+    const testTimeMs = Date.now() - testStart;
+    console.log(`${chalk.white(Math.round(testTimeMs / 100) / 10)} seconds`);
     console.log(chalk.magenta(`--------------------`));
     console.log();
     process.exit(); // eslint-disable-line no-process-exit
