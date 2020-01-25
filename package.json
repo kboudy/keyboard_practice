@@ -33,7 +33,9 @@
       "url": "https://github.com/Ailrun"
     }
   ],
-  "dependencies": {},
+  "dependencies": {
+    "chalk": "^3.0.0"
+  },
   "deprecated": false,
   "description": "TypeScript definitions for color-name",
   "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped#readme",
