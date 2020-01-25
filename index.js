@@ -35,6 +35,9 @@ function shuffle(array) {
 const shuffledKeys = shuffle(allKeys.split(""));
 let currentKeyIndex = 0;
 let performance = {};
+if (fs.existsSync("performance.json")) {
+  performance = JSON.parse(fs.readFileSync("performance.json"));
+}
 console.log(chalk.yellow(shuffledKeys[currentKeyIndex]));
 let keyStart = Date.now();
 let testStart = Date.now();
