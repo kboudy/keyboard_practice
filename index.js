@@ -43,6 +43,8 @@ function shuffle(array) {
 }
 const getHelperText = k => {
   switch (k.trim()) {
+    case "~":
+      return " tilde";
     case "l":
       return " letter l";
     case "1":
