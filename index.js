@@ -144,7 +144,13 @@ process.stdin.on("keypress", (str, key) => {
         wrongKeysColors += " ";
       }
     }
-    console.log(chalk.red(`${wrongKeys.length} incorrect: ${wrongKeysColors}`));
+    if (wrongKeys.length === 0) {
+      console.log(chalk.green(`~ perfect score ~`));
+    } else {
+      console.log(
+        chalk.red(`${wrongKeys.length} incorrect: ${wrongKeysColors}`)
+      );
+    }
     let testTimeMs = 0;
     for (const k in thisSessionPerformance) {
       testTimeMs += thisSessionPerformance[k].millis;
