@@ -104,7 +104,6 @@ console.log(
     chalk.gray(` ${getHelperText(shuffledKeys[currentKeyIndex])}`)
 );
 let keyStart = Date.now();
-let testStart = Date.now();
 let wrongCount = 0;
 process.stdin.on("keypress", (str, key) => {
   if (key.ctrl && key.name === "c") {
@@ -134,7 +133,11 @@ process.stdin.on("keypress", (str, key) => {
     fs.writeFileSync(performanceJsonPath, JSON.stringify(performance), "utf8");
     console.log(chalk.magenta(`--------------------`));
     console.log(chalk.red(`${wrongCount} incorrect`));
-    const testTimeMs = Date.now() - testStart;
+    let testTimeMs = 0;
+    for (const k of shuffledKeys) {
+      testTimeMs += thisSessionPerformance[k].millis;
+    }
+
     console.log(`${chalk.white(Math.round(testTimeMs / 100) / 10)} seconds`);
     console.log(chalk.magenta(`--------------------`));
     console.log();
