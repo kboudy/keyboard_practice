@@ -104,7 +104,7 @@ console.log(
     chalk.gray(` ${getHelperText(shuffledKeys[currentKeyIndex])}`)
 );
 let keyStart = Date.now();
-let wrongCount = 0;
+const wrongKeys = [];
 process.stdin.on("keypress", (str, key) => {
   if (key.ctrl && key.name === "c") {
     process.exit(); // eslint-disable-line no-process-exit
@@ -114,7 +114,9 @@ process.stdin.on("keypress", (str, key) => {
     console.log(chalk.green(key.sequence.trim()));
   } else {
     correct = false;
-    wrongCount++;
+    if (!wrongKeys.includes(shuffledKeys[currentKeyIndex] + key.sequence)) {
+      wrongKeys.push(shuffledKeys[currentKeyIndex] + key.sequence);
+    }
     console.log(chalk.red(key.sequence.trim()));
   }
   let millis = Date.now() - keyStart;
@@ -132,9 +134,17 @@ process.stdin.on("keypress", (str, key) => {
   if (currentKeyIndex === shuffledKeys.length) {
     fs.writeFileSync(performanceJsonPath, JSON.stringify(performance), "utf8");
     console.log(chalk.magenta(`--------------------`));
-    console.log(chalk.red(`${wrongCount} incorrect`));
+    wrongKeys.sort();
+    let wrongKeysColors = "";
+    for (const wk of wrongKeys) {
+      wrongKeysColors += chalk.green(wk[0]) + chalk.red(wk[1]);
+      if (wrongKeys.indexOf(wk) < wrongKeys.length - 1) {
+        wrongKeysColors += " ";
+      }
+    }
+    console.log(chalk.red(`${wrongKeys.length} incorrect: ${wrongKeysColors}`));
     let testTimeMs = 0;
-    for (const k of shuffledKeys) {
+    for (const k in thisSessionPerformance) {
       testTimeMs += thisSessionPerformance[k].millis;
     }
 
