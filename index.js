@@ -91,8 +91,9 @@ prevCorrectKeys.sort(compare);
 // the slowest 10% are at the end
 const saveAmount = Math.floor(prevCorrectKeys.length * 0.1);
 const slowPokes = prevCorrectKeys.splice(-saveAmount);
-keysToUse = [...keysToUse, ...slowPokes.map(k => k.key)];
-
+keysToUse = [...keysToUse, ...slowPokes.map(k => k.key)].filter(k =>
+  allKeys.includes(k)
+);
 const shuffledKeys = shuffle(keysToUse);
 if (!performance) {
   performance = {};
